@@ -404,7 +404,23 @@ const RESOURCES_CONTENT = `
     </div>
 
     <div class="res-section">
-      <h3>Resume Toolkit</h3>
+      <h3>AI-assisted testing awareness (2026 interview must-know)</h3>
+      <div class="info-box">
+        <p>You don't need deep expertise here, just informed familiarity — interviewers in 2026 routinely ask "how do you use AI in your testing workflow" as a throwaway question, and having a real answer (not a blank stare) is the whole bar.</p>
+      </div>
+      <div class="res-grid">
+        <div class="res-card"><div class="res-cat">CODE ASSISTANT</div><div class="res-name">GitHub Copilot / Claude / ChatGPT for test authoring</div><div class="res-desc">Using an AI assistant to scaffold test cases, generate test data, or draft a first-pass POM class is now a normal, expected workflow — be ready to describe how you use one, and where you still review its output by hand.</div></div>
+        <div class="res-card"><div class="res-cat">SELF-HEALING LOCATORS</div><div class="res-name">Playwright's AI-assisted codegen</div><div class="res-desc">You already used <code>playwright codegen</code> in Month 2, Week 6 — mention that experience directly; it's the same underlying idea interviewers are probing for.</div></div>
+        <div class="res-card"><div class="res-cat">TEST DATA</div><div class="res-name">Prompting an LLM for edge-case test data</div><div class="res-desc">Generating boundary values, malformed inputs, or realistic fake records via a quick prompt is a fast, legitimate technique — worth having one concrete example ready to describe.</div></div>
+      </div>
+    </div>
+
+    <div class="res-section">
+      <h3>Glossary</h3>
+      <p class="sheet-desc" style="margin-top:-4px;">Every acronym and term used across the 48 weeks, defined in one place — see the <strong>Glossary</strong> page in the sidebar for the full searchable list. Useful as a fast pre-interview refresher in Month 11.</p>
+    </div>
+
+
       <div class="res-card" style="margin-bottom:14px;">
         <div class="res-name" style="margin-bottom:8px;">Use strong action verbs — avoid weak ones</div>
         <div>
@@ -446,3 +462,29 @@ const RESOURCES_CONTENT = `
       <div class="res-card"><div class="res-desc"><strong style="color:var(--text);">Weak, unreproducible bug/finding reports.</strong> SDETs are paid for clarity, not just for finding problems. Every deliverable in this roadmap that involves writing something up is training this exact muscle — don't skip those.</div></div>
     </div>
 `;
+
+const GLOSSARY_TERMS = [
+  {term:"SDET", def:"Software Development Engineer in Test — a tester who writes production-quality code to build and maintain automation, not just execute manual test cases.", cat:"Role"},
+  {term:"QA vs SDET", def:"QA typically focuses on manual/exploratory testing and test-case design. SDET adds software engineering skills — automation frameworks, CI/CD, infrastructure — on top of that testing instinct.", cat:"Role"},
+  {term:"POM (Page Object Model)", def:"A design pattern that separates 'what a page can do' (locators + actions, in a class) from 'what the test asserts' — keeps tests readable and locators in one maintainable place.", cat:"Automation"},
+  {term:"Locator", def:"A strategy for finding an element on a page (by role, text, label, CSS, XPath). Playwright's get_by_role/get_by_text style locators are preferred because they survive UI changes better than raw CSS/XPath.", cat:"Automation"},
+  {term:"Web-first assertion", def:"An assertion (like Playwright's expect()) that automatically retries until it passes or times out, instead of checking once and failing immediately — the main reason well-written Playwright tests avoid flakiness.", cat:"Automation"},
+  {term:"Flaky test", def:"A test that sometimes passes and sometimes fails with no code change — usually caused by timing issues, hard waits (time.sleep), or unstable test data/environment.", cat:"Automation"},
+  {term:"Trace Viewer", def:"Playwright's built-in debugging tool — records a full timeline, DOM snapshots, and network activity for a test run so you can see exactly why it failed, without reproducing it locally.", cat:"Automation"},
+  {term:"Test pyramid", def:"A model for balancing test types: many fast, cheap unit/API tests at the base, fewer slower UI/end-to-end tests at the top — guides what you test at which layer.", cat:"Strategy"},
+  {term:"Fixture (pytest)", def:"Reusable setup/teardown code shared across tests, declared with @pytest.fixture and often centralized in conftest.py to avoid duplicating setup in every test.", cat:"Automation"},
+  {term:"Parametrize", def:"A pytest feature (@pytest.mark.parametrize) that runs the same test function against multiple sets of input data, instead of writing near-duplicate tests by hand.", cat:"Automation"},
+  {term:"Schema validation", def:"Verifying that an API response's structure/types match an expected schema (via pydantic or jsonschema), not just checking individual field values.", cat:"API"},
+  {term:"BOLA (Broken Object Level Authorization)", def:"An API vulnerability where a user can access or modify another user's data just by changing an ID in the request — the single most common finding in API security testing (OWASP API Top 10 #1).", cat:"Security"},
+  {term:"OWASP Top 10", def:"The industry-standard list of the ten most critical web application security risks, maintained by the Open Web Application Security Project — the baseline vocabulary for security testing.", cat:"Security"},
+  {term:"Burp Suite", def:"The industry-standard tool for manual web security testing — intercepts and lets you modify HTTP requests in transit (via its Proxy and Repeater tools).", cat:"Security"},
+  {term:"OWASP ZAP", def:"A free, open-source automated web security scanner — commonly wired into CI pipelines to catch vulnerabilities on every build, complementing manual Burp Suite testing.", cat:"Security"},
+  {term:"CI/CD", def:"Continuous Integration / Continuous Delivery — automatically building, testing, and (for CD) deploying code on every change, instead of doing it manually. GitHub Actions is the tool used throughout this roadmap.", cat:"Infra"},
+  {term:"Sharding", def:"Splitting a large test suite across multiple parallel machines/workers in CI so the whole suite finishes faster than running it sequentially on one machine.", cat:"Infra"},
+  {term:"Page pool / pytest-xdist", def:"A pytest plugin that runs tests in parallel across multiple CPU cores/processes, cutting total suite runtime.", cat:"Infra"},
+  {term:"Network mocking", def:"Intercepting and faking an HTTP request/response (via Playwright's page.route()) so a UI test doesn't depend on a real backend being up, fast, or in a specific state.", cat:"Automation"},
+  {term:"Allure report", def:"A popular test-reporting tool that turns raw pytest results into a rich, shareable HTML report with history, categories, and attachments — commonly published as a CI artifact.", cat:"Infra"},
+  {term:"RAG (Retrieval-Augmented Generation)", def:"An LLM architecture pattern where the model retrieves relevant documents/data before generating a response — the specific thing tools like Ragas are built to evaluate.", cat:"AI/LLM"},
+  {term:"LLM-as-judge", def:"Using one LLM to grade the output of another (e.g. in promptfoo/DeepEval) — a common but imperfect technique for scoring non-deterministic AI outputs at scale.", cat:"AI/LLM"},
+  {term:"STAR method", def:"Situation, Task, Action, Result — a structure for answering behavioral interview questions with a concrete story instead of a vague generality.", cat:"Interview"}
+];

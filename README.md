@@ -86,9 +86,21 @@ This means:
   week with a jump button, job pipeline summary, and a few pinned quick
   links, so the extra horizontal space isn't wasted
 - Resources page includes 2026 salary benchmarks (entry/mid/senior,
-  remote-from-Bangladesh context) and a Performance/Mobile/AI-LLM
+  remote-from-Bangladesh context), a Performance/Mobile/AI-LLM
   testing tools section (JMeter, k6, Grafana, Appium, promptfoo,
-  DeepEval, Ragas)
+  DeepEval, Ragas), and an AI-assisted-testing-awareness primer
+- Pre-flight environment checklist on the Start page (Python, editor,
+  git/GitHub, terminal basics) with its own persisted checkboxes
+- "Why you're doing this" personal goal note — set once on the Start
+  page, quietly resurfaces as a reminder in the sidebar
+- Time-invested bar chart on the Start page, built from the
+  hours-logged field on every week
+- Phase grouping in the sidebar (Foundation / Core Skills /
+  Specialization / Launch) plus milestone badges at key transitions
+  (mid-program checkpoint, capstone shipped, portfolio live)
+- Glossary page — 20+ terms/acronyms used across the roadmap
+  (POM, BOLA, flaky test, test pyramid, RAG, STAR method, etc.),
+  with a live filter
 
 ## Editing the content
 

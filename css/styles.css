@@ -49,6 +49,8 @@
   .month-check{ font-family:var(--mono); font-size:10.5px; color:var(--text-dim); flex-shrink:0; }
   .month-item.month-done .month-check{ color:var(--green); }
   .divider{ height:1px; background:var(--border); margin:12px 4px; }
+  .phase-divider{ margin-top:18px; padding-top:12px; border-top:1px solid var(--border); }
+  .milestone-badge{ font-family:var(--mono); font-size:10px; color:var(--amber); background:rgba(242,166,90,.08); border:1px dashed var(--amber-dim); border-radius:3px; padding:5px 10px; margin:2px 4px 8px; }
 
   .sidebar-footer{ margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
   .save-status{ font-family:var(--mono); font-size:10.5px; color:var(--text-dim); margin-bottom:10px; min-height:14px; transition:opacity .3s ease; }
@@ -222,3 +224,32 @@ body.light{
   .main{ max-width:100%; padding:0; }
   body{ background:#fff; color:#000; }
 }
+
+/* Pre-flight checklist */
+.preflight-item{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
+.preflight-item:last-child{ border-bottom:none; }
+.preflight-check{ width:18px; height:18px; border:1.5px solid var(--text-dim); border-radius:3px; flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.preflight-check.checked{ background:var(--green); border-color:var(--green); }
+.preflight-check.checked::after{ content:"✓"; color:var(--bg-deep); font-size:11px; font-weight:700; }
+.preflight-text{ font-size:13.5px; color:var(--text-muted); cursor:pointer; }
+.preflight-item.done .preflight-text{ color:var(--text-dim); text-decoration:line-through; }
+
+/* Personal goal reminder */
+.goal-box textarea{ width:100%; background:var(--bg-deep); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:13.5px; padding:10px 12px; border-radius:4px; resize:vertical; min-height:52px; outline:none; }
+.goal-box textarea:focus{ border-color:var(--amber); }
+.goal-reminder{ background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--amber); border-radius:0 3px 3px 0; padding:10px 12px; margin-bottom:16px; font-size:12px; color:var(--text-muted); line-height:1.5; }
+.goal-reminder .goal-label{ font-family:var(--mono); font-size:9.5px; color:var(--amber); display:block; margin-bottom:4px; }
+
+/* Hours chart */
+.hours-chart{ display:flex; align-items:flex-end; gap:2px; height:70px; padding:10px 0 4px; }
+.hours-bar{ flex:1; background:var(--amber-dim); border-radius:1px 1px 0 0; min-height:2px; position:relative; }
+.hours-bar.logged{ background:var(--amber); }
+.hours-axis{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:9.5px; color:var(--text-dim); }
+
+/* Glossary page */
+.glossary-filter{ width:100%; background:var(--panel); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:13px; padding:9px 12px; border-radius:4px; outline:none; margin-bottom:18px; }
+.glossary-filter:focus{ border-color:var(--amber); }
+.glossary-item{ background:var(--panel); border:1px solid var(--border); border-radius:4px; padding:13px 16px; margin-bottom:10px; }
+.glossary-term{ font-size:14.5px; font-weight:600; margin-bottom:4px; }
+.glossary-cat{ font-family:var(--mono); font-size:9.5px; color:var(--blue); background:rgba(127,176,214,.1); padding:1px 7px; border-radius:8px; margin-left:8px; vertical-align:middle; }
+.glossary-def{ font-size:13px; color:var(--text-muted); line-height:1.6; }

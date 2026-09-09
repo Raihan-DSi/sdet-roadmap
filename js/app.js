@@ -7,7 +7,7 @@
 
 const STORAGE_KEY = 'sdet-roadmap-progress';
 
-let currentView = "start"; // "start" | "resources" | "month" | "search" | "bullets" | "jobs"
+let currentView = "start"; // "start" | "resources" | "month" | "search" | "bullets" | "jobs" | "glossary"
 let currentMonth = 0;
 let searchQuery = "";
 let saveTimer = null;
@@ -21,6 +21,30 @@ let startDate = "";      // "YYYY-MM-DD" — when you began, for pacing
 let theme = "dark";      // "dark" | "light"
 let bullets = [];         // [{id, text}]
 let jobs = [];             // [{id, company, dateApplied, status, contact, notes}]
+const preflightState = {}; // {"env-python": true, ...}
+let goalText = "";          // "why I'm doing this" reminder, shown in sidebar
+let glossaryFilter = "";
+
+const PREFLIGHT_ITEMS = [
+  {id:"python", text:"Python 3.10+ installed (python --version works in your terminal)"},
+  {id:"editor", text:"A code editor set up — VS Code recommended, with the Python extension"},
+  {id:"git", text:"Git installed and a GitHub account created"},
+  {id:"github-ssh", text:"GitHub authentication working (SSH key or a personal access token)"},
+  {id:"terminal", text:"Comfortable opening a terminal and running basic commands (cd, ls/dir, pip)"}
+];
+
+const PHASES = [
+  {fromMonth:0, label:"FOUNDATION · MONTHS 1-3"},
+  {fromMonth:3, label:"CORE SKILLS · MONTHS 4-6"},
+  {fromMonth:6, label:"SPECIALIZATION · MONTHS 7-9"},
+  {fromMonth:9, label:"LAUNCH · MONTHS 10-12"}
+];
+const MONTH_MILESTONES = {
+  5: "🏁 Mid-program checkpoint",
+  8: "🔒 Specialization project shipped",
+  9: "🏆 Capstone shipped",
+  10: "📣 Portfolio live"
+};
 
 function weekKey(m,w){ return m+"-"+w; }
 function totalWeeks(){ return MONTHS.reduce((s,m)=>s+m.weeks.length,0); }
@@ -81,6 +105,8 @@ function loadProgress(){
       theme = parsed.theme || "dark";
       bullets = parsed.bullets || [];
       jobs = parsed.jobs || [];
+      Object.assign(preflightState, parsed.preflight || {});
+      goalText = parsed.goalText || "";
       statusEl.textContent = parsed.updatedAt ? `Last saved: ${new Date(parsed.updatedAt).toLocaleString()}` : 'Progress loaded.';
       statusEl.className = 'save-status ok';
     } else {
@@ -98,6 +124,7 @@ function saveProgress(){
     const payload = JSON.stringify({
       weeks: state, notes: notesState, times: timeState, links: linkState,
       activityDates, startDate, theme, bullets, jobs,
+      preflight: preflightState, goalText,
       updatedAt: new Date().toISOString()
     });
     localStorage.setItem(STORAGE_KEY, payload);
@@ -118,6 +145,7 @@ function exportProgress(){
   const payload = JSON.stringify({
     weeks: state, notes: notesState, times: timeState, links: linkState,
     activityDates, startDate, theme, bullets, jobs,
+    preflight: preflightState, goalText,
     updatedAt: new Date().toISOString()
   }, null, 2);
   const blob = new Blob([payload], {type:'application/json'});
@@ -147,6 +175,8 @@ function importProgress(evt){
       if(parsed.theme) theme = parsed.theme;
       if(parsed.bullets) bullets = parsed.bullets;
       if(parsed.jobs) jobs = parsed.jobs;
+      if(parsed.preflight) Object.assign(preflightState, parsed.preflight);
+      if(parsed.goalText) goalText = parsed.goalText;
       saveProgress();
       applyTheme();
       renderAll();
@@ -165,10 +195,12 @@ function resetProgress(){
   Object.keys(notesState).forEach(k=>delete notesState[k]);
   Object.keys(timeState).forEach(k=>delete timeState[k]);
   Object.keys(linkState).forEach(k=>delete linkState[k]);
+  Object.keys(preflightState).forEach(k=>delete preflightState[k]);
   activityDates = [];
   startDate = "";
   bullets = [];
   jobs = [];
+  goalText = "";
   saveProgress();
   renderAll();
 }
@@ -224,12 +256,13 @@ function renderTopNav(){
   nav.innerHTML = '';
   const items = [
     {key:"start", label:"Start Here", icon:"◆"},
+    {key:"glossary", label:"Glossary", icon:"◆"},
     {key:"bullets", label:"Resume Bullets", icon:"◆"},
     {key:"jobs", label:"Job Tracker", icon:"◆"},
     {key:"resources", label:"Resources", icon:"◆"}
   ];
   items.forEach(it=>{
-    const li = document.createElement('li');
+    const li = document.createElement('div');
     li.className = 'month-item' + (currentView===it.key ? ' active':'');
     li.innerHTML = `<span class="month-num">${it.icon}</span><span class="month-name">${it.label}</span>`;
     li.onclick = ()=>{ currentView = it.key; document.getElementById('search-input').value=''; searchQuery=''; renderAll(); window.scrollTo(0,0); };
@@ -241,11 +274,24 @@ function renderMonthNav(){
   const nav = document.getElementById('month-nav');
   nav.innerHTML = '';
   MONTHS.forEach((m, i)=>{
-    const li = document.createElement('li');
+    const phase = PHASES.find(p=>p.fromMonth===i);
+    if(phase){
+      const label = document.createElement('div');
+      label.className = 'nav-group-label' + (i>0 ? ' phase-divider' : '');
+      label.textContent = phase.label;
+      nav.appendChild(label);
+    }
+    const li = document.createElement('div');
     li.className = 'month-item' + (currentView==="month" && i===currentMonth ? ' active':'') + (monthDone(i) ? ' month-done':'');
     li.innerHTML = `<span class="month-num">${String(i+1).padStart(2,'0')}</span><span class="month-name">${m.short}</span><span class="month-check">${monthDone(i)?'✓':''}</span>`;
     li.onclick = ()=>{ currentView="month"; currentMonth = i; document.getElementById('search-input').value=''; searchQuery=''; renderAll(); window.scrollTo(0,0); };
     nav.appendChild(li);
+    if(MONTH_MILESTONES[i]){
+      const ms = document.createElement('div');
+      ms.className = 'milestone-badge';
+      ms.textContent = MONTH_MILESTONES[i];
+      nav.appendChild(ms);
+    }
   });
 }
 
@@ -372,10 +418,15 @@ function renderWeekCard(mi, wi, w, options){
 function renderMain(){
   const main = document.getElementById('main');
 
-  if(currentView === "start"){ main.innerHTML = START_CONTENT + resumeButtonHTML(); attachResumeButton(); return; }
+  if(currentView === "start"){
+    main.innerHTML = START_CONTENT + preflightHTML() + goalHTML() + hoursChartHTML() + resumeButtonHTML();
+    attachStartHandlers();
+    return;
+  }
   if(currentView === "resources"){ main.innerHTML = RESOURCES_CONTENT; return; }
   if(currentView === "bullets"){ renderBulletsView(); return; }
   if(currentView === "jobs"){ renderJobsView(); return; }
+  if(currentView === "glossary"){ renderGlossaryView(); return; }
 
   if(currentView === "search"){
     const results = searchMatches();
@@ -443,6 +494,121 @@ function attachResumeButton(){
       if(next) jumpToWeek(next.mi, next.wi);
     };
   }
+}
+
+/* ---------- PRE-FLIGHT CHECKLIST ---------- */
+function preflightHTML(){
+  const doneCount = PREFLIGHT_ITEMS.filter(i=>preflightState[i.id]).length;
+  const items = PREFLIGHT_ITEMS.map(i=>{
+    const checked = !!preflightState[i.id];
+    return `<div class="preflight-item ${checked?'done':''}">
+      <div class="preflight-check ${checked?'checked':''}" data-preflight-id="${i.id}"></div>
+      <div class="preflight-text" data-preflight-id="${i.id}">${i.text}</div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="info-box" style="margin-top:20px;">
+      <div class="info-label">BEFORE WEEK 1 — ENVIRONMENT CHECKLIST (${doneCount}/${PREFLIGHT_ITEMS.length})</div>
+      <p style="margin-bottom:10px;">Get these out of the way before Month 1 starts, so day one is spent learning Python, not fighting your terminal.</p>
+      ${items}
+    </div>
+  `;
+}
+function togglePreflight(id){
+  preflightState[id] = !preflightState[id];
+  markActivityToday();
+  debouncedSave();
+  renderMain();
+  attachStartHandlers();
+}
+
+/* ---------- PERSONAL GOAL REMINDER ---------- */
+function goalHTML(){
+  return `
+    <div class="info-box goal-box" style="margin-top:20px;">
+      <div class="info-label">WHY YOU'RE DOING THIS</div>
+      <p style="margin-bottom:8px;">A short note to your future self for month 5-6, when motivation is hardest to keep — target role, target salary, whatever makes this concrete for you. It'll show up as a quiet reminder in the sidebar.</p>
+      <textarea id="goal-input" placeholder="e.g. Remote SDET role, $2,500+/month, offer by next September...">${goalText}</textarea>
+    </div>
+  `;
+}
+function attachStartHandlers(){
+  attachResumeButton();
+  document.querySelectorAll('[data-preflight-id]').forEach(el=>{
+    el.onclick = ()=> togglePreflight(el.getAttribute('data-preflight-id'));
+  });
+  const goalInput = document.getElementById('goal-input');
+  if(goalInput){
+    goalInput.oninput = (e)=>{
+      goalText = e.target.value;
+      markActivityToday();
+      debouncedSave();
+      renderSidebarGoal();
+    };
+  }
+}
+function renderSidebarGoal(){
+  const el = document.getElementById('sidebar-goal');
+  if(!el) return;
+  el.innerHTML = goalText ? `<div class="goal-reminder"><span class="goal-label">YOUR GOAL</span>${escapeHtml(goalText)}</div>` : '';
+}
+
+/* ---------- HOURS CHART ---------- */
+function hoursChartHTML(){
+  const total = totalWeeks();
+  const hours = [];
+  for(let mi=0; mi<MONTHS.length; mi++){
+    for(let wi=0; wi<MONTHS[mi].weeks.length; wi++){
+      const v = parseFloat(timeState[weekKey(mi,wi)]);
+      hours.push(isNaN(v) ? 0 : v);
+    }
+  }
+  const max = Math.max(1, ...hours);
+  const sum = hours.reduce((a,b)=>a+b, 0);
+  const bars = hours.map((h,i)=>{
+    const heightPct = Math.round((h/max)*100);
+    return `<div class="hours-bar ${h>0?'logged':''}" style="height:${Math.max(heightPct,2)}%" title="Week ${i+1}: ${h||0}h"></div>`;
+  }).join('');
+  return `
+    <div class="info-box" style="margin-top:20px;">
+      <div class="info-label">TIME INVESTED SO FAR — ${sum.toFixed(1)} HRS TOTAL</div>
+      <p style="margin-bottom:0;">Logged from the "Hours actually spent" field on each week. Bars fill in as you go — a flat stretch of empty bars is an early warning sign before it becomes a lost month.</p>
+      <div class="hours-chart">${bars}</div>
+      <div class="hours-axis"><span>Week 1</span><span>Week ${total}</span></div>
+    </div>
+  `;
+}
+
+/* ---------- GLOSSARY ---------- */
+function renderGlossaryView(){
+  const main = document.getElementById('main');
+  const q = glossaryFilter.trim().toLowerCase();
+  const filtered = GLOSSARY_TERMS.filter(g =>
+    !q || g.term.toLowerCase().includes(q) || g.def.toLowerCase().includes(q) || g.cat.toLowerCase().includes(q)
+  );
+  let html = `
+    <div class="sheet-label">REFERENCE</div>
+    <h1 class="sheet-title">Glossary</h1>
+    <p class="sheet-desc">Every term and acronym used across the 48 weeks, in one place. Good for a fast refresher before Month 11's mock interviews.</p>
+    <input type="text" class="glossary-filter" placeholder="Filter terms... (e.g. security, pytest, POM)" value="${glossaryFilter}" oninput="filterGlossary(this.value)">
+  `;
+  if(filtered.length === 0){
+    html += `<div class="info-box"><p>No terms matched that filter.</p></div>`;
+  } else {
+    filtered.forEach(g=>{
+      html += `<div class="glossary-item">
+        <div class="glossary-term">${g.term}<span class="glossary-cat">${g.cat}</span></div>
+        <div class="glossary-def">${g.def}</div>
+      </div>`;
+    });
+  }
+  main.innerHTML = html;
+}
+function filterGlossary(v){
+  glossaryFilter = v;
+  renderGlossaryView();
+  const input = document.querySelector('.glossary-filter');
+  if(input){ input.focus(); input.setSelectionRange(v.length, v.length); }
 }
 
 /* ---------- RESUME BULLETS PAGE ---------- */
@@ -517,6 +683,7 @@ function renderJobsView(){
   main.innerHTML = html;
 }
 function escapeAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
+function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function addJob(){
   jobs.push({id: uid(), company:"", dateApplied: todayStr(), status:"Wishlist", contact:"", notes:""});
   markActivityToday();
@@ -667,6 +834,7 @@ function renderAll(){
   renderMonthNav();
   renderOverall();
   renderSidebarFooter();
+  renderSidebarGoal();
   renderMain();
   renderRightRail();
 }
