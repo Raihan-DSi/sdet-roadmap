@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDET Blueprint — 12-Month Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand">SHEET SET · SDET-2026</div>
+  <div class="brand-sub">SDET Blueprint</div>
+  <div class="brand-tag">A 12-month, week-by-week build plan from QA Engineer to hire-ready SDET.</div>
+
+  <div class="search-box">
+    <input type="text" id="search-input" placeholder="Search all 48 weeks... ( / )" oninput="handleSearch(this.value)">
+  </div>
+
+  <div class="overall-progress">
+    <div class="label"><span>OVERALL</span><span id="overall-count">0 / 48 weeks</span></div>
+    <div class="bar-track"><div class="bar-fill" id="overall-bar"></div></div>
+  </div>
+
+  <div class="streak-box" id="streak-box"></div>
+
+  <ul class="top-nav" id="top-nav"></ul>
+  <div class="divider"></div>
+  <div class="nav-group-label">MONTHLY SHEETS</div>
+  <ul class="month-nav" id="month-nav"></ul>
+
+  <div class="sidebar-footer">
+    <div class="theme-toggle">
+      <button class="fbtn" id="theme-toggle-btn" onclick="toggleTheme()">☀ Light mode</button>
+    </div>
+    <div class="save-status" id="save-status">Loading your progress…</div>
+    <div class="footer-btns">
+      <button class="fbtn" onclick="exportProgress()">↓ Export backup</button>
+      <button class="fbtn" onclick="document.getElementById('import-file').click()">↑ Import</button>
+      <button class="fbtn danger" onclick="resetProgress()">Reset all</button>
+    </div>
+    <input type="file" id="import-file" accept="application/json" onchange="importProgress(event)">
+  </div>
+</div>
+
+<div class="main" id="main"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
