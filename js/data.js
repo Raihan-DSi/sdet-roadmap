@@ -411,6 +411,7 @@ const RESOURCES_CONTENT = `
       <div class="res-grid">
         <div class="res-card"><div class="res-cat">CODE ASSISTANT</div><div class="res-name">GitHub Copilot / Claude / ChatGPT for test authoring</div><div class="res-desc">Using an AI assistant to scaffold test cases, generate test data, or draft a first-pass POM class is now a normal, expected workflow — be ready to describe how you use one, and where you still review its output by hand.</div></div>
         <div class="res-card"><div class="res-cat">SELF-HEALING LOCATORS</div><div class="res-name">Playwright's AI-assisted codegen</div><div class="res-desc">You already used <code>playwright codegen</code> in Month 2, Week 6 — mention that experience directly; it's the same underlying idea interviewers are probing for.</div></div>
+        <div class="res-card"><div class="res-cat">AGENTIC BROWSER CONTROL</div><div class="res-name"><a href="https://github.com/microsoft/playwright-mcp" target="_blank">Playwright MCP</a></div><div class="res-desc">Microsoft's official, free/open-source MCP server (<code>npx @playwright/mcp@latest</code>) — lets an AI agent (Claude, GPT, etc.) drive a real browser through Playwright. This is the concrete 2026 answer if an interviewer asks how AI agents fit into browser test automation specifically.</div></div>
         <div class="res-card"><div class="res-cat">TEST DATA</div><div class="res-name">Prompting an LLM for edge-case test data</div><div class="res-desc">Generating boundary values, malformed inputs, or realistic fake records via a quick prompt is a fast, legitimate technique — worth having one concrete example ready to describe.</div></div>
       </div>
     </div>
@@ -486,5 +487,6 @@ const GLOSSARY_TERMS = [
   {term:"Allure report", def:"A popular test-reporting tool that turns raw pytest results into a rich, shareable HTML report with history, categories, and attachments — commonly published as a CI artifact.", cat:"Infra"},
   {term:"RAG (Retrieval-Augmented Generation)", def:"An LLM architecture pattern where the model retrieves relevant documents/data before generating a response — the specific thing tools like Ragas are built to evaluate.", cat:"AI/LLM"},
   {term:"LLM-as-judge", def:"Using one LLM to grade the output of another (e.g. in promptfoo/DeepEval) — a common but imperfect technique for scoring non-deterministic AI outputs at scale.", cat:"AI/LLM"},
+  {term:"Playwright MCP", def:"Microsoft's official MCP (Model Context Protocol) server that exposes Playwright's browser controls as tools an AI agent can call — lets an LLM drive a real browser (click, navigate, fill forms) instead of just generating test code.", cat:"AI/LLM"},
   {term:"STAR method", def:"Situation, Task, Action, Result — a structure for answering behavioral interview questions with a concrete story instead of a vague generality.", cat:"Interview"}
 ];
