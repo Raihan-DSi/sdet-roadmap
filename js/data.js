@@ -334,6 +334,38 @@ const RESOURCES_CONTENT = `
     </div>
 
     <div class="res-section">
+      <h3>Salary benchmarks (2026, for negotiation reference)</h3>
+      <div class="info-box amber">
+        <div class="info-label">USE THESE AS AN ANCHOR, NOT A QUOTE — READ MONTH 12</div>
+        <p>Figures below are approximate 2026 market ranges pulled from Glassdoor, Payscale, and industry salary guides — they move fast and vary by company, domain, and how you negotiate. The point isn't to memorize a number, it's to walk into Month 12's negotiation week with a real anchor instead of guessing.</p>
+      </div>
+      <table class="track-table">
+        <tr><th></th><th>US remote, per year</th><th>Notes</th></tr>
+        <tr><td class="rowlabel">Entry-level</td><td>$65,000 – $95,000</td><td>Where a strong portfolio (this roadmap's capstone) matters most — it's the difference between the low and high end.</td></tr>
+        <tr><td class="rowlabel">Mid-level</td><td>$95,000 – $140,000</td><td>Typical Glassdoor "remote" average sits around $103k–$109k for this band.</td></tr>
+        <tr><td class="rowlabel">Senior</td><td>$140,000 – $190,000+</td><td>Multi-year target, not a Month-12 target — included so you know where the ladder leads.</td></tr>
+      </table>
+      <div class="res-card" style="margin-top:10px;">
+        <div class="res-name">The remote-from-Bangladesh arbitrage</div>
+        <div class="res-desc">Local Dhaka-market SDET pay is a small fraction of the numbers above — industry guides put remote international roles at roughly 3-5× local Bangladesh rates once you land a US/EU-based remote employer, which is exactly why Month 11-12 explicitly targets remote-friendly international companies over local-only applications.</div>
+      </div>
+    </div>
+
+    <div class="res-section">
+      <h3>Performance, mobile & AI/LLM testing tools</h3>
+      <p class="sheet-desc" style="margin-top:-4px;">Referenced in the track comparison table in Month 7 and in the "common pitfalls" list below — you don't need deep expertise in any of these, but credible familiarity with one outside your main specialization noticeably widens the roles you qualify for.</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="res-cat">PERFORMANCE</div><div class="res-name"><a href="https://jmeter.apache.org/" target="_blank">Apache JMeter</a></div><div class="res-desc">The long-standing free/open-source load testing standard — GUI-based, huge community, still widely asked about in interviews.</div></div>
+        <div class="res-card"><div class="res-cat">PERFORMANCE</div><div class="res-name"><a href="https://k6.io/" target="_blank">k6</a></div><div class="res-desc">Modern, code-first load testing (JavaScript test scripts) — the tool most performance-track job postings mention alongside JMeter in 2026.</div></div>
+        <div class="res-card"><div class="res-cat">PERFORMANCE</div><div class="res-name"><a href="https://grafana.com/" target="_blank">Grafana</a></div><div class="res-desc">Pairs with k6/JMeter output to visualize load-test results — worth a few hours just to recognize dashboards in an interview.</div></div>
+        <div class="res-card"><div class="res-cat">MOBILE</div><div class="res-name"><a href="https://appium.io/" target="_blank">Appium</a></div><div class="res-desc">The standard free/open-source mobile automation framework (iOS + Android) — even a single weekend project mentioning Appium meaningfully expands the roles you qualify for.</div></div>
+        <div class="res-card"><div class="res-cat">AI / LLM TESTING</div><div class="res-name"><a href="https://www.promptfoo.dev/" target="_blank">promptfoo</a></div><div class="res-desc">Free, CLI-first tool for testing and red-teaming prompts/LLM outputs — the fastest way to get hands-on with this track's core workflow.</div></div>
+        <div class="res-card"><div class="res-cat">AI / LLM TESTING</div><div class="res-name"><a href="https://deepeval.com/" target="_blank">DeepEval</a></div><div class="res-desc">Open-source LLM evaluation framework built to feel like "pytest for LLMs" — the most natural fit if your background is already pytest-based.</div></div>
+        <div class="res-card"><div class="res-cat">AI / LLM TESTING</div><div class="res-name"><a href="https://docs.ragas.io/" target="_blank">Ragas</a></div><div class="res-desc">Specializes in evaluating RAG (retrieval-augmented generation) pipelines specifically — pair with DeepEval if your target app is RAG-based.</div></div>
+      </div>
+    </div>
+
+    <div class="res-section">
       <h3>Core tools by month</h3>
       <div class="res-grid">
         <div class="res-card"><div class="res-cat">MONTH 1-3</div><div class="res-name">Python, Git, Playwright, pytest</div><div class="res-desc">VS Code with the Playwright Test extension + Pylance is the recommended setup.</div></div>

@@ -82,6 +82,13 @@ This means:
 - Dark / light theme toggle
 - Print-friendly view (print current month only, via the 🖨 button)
 - Export/Import JSON backup, Reset all
+- Right-side stats rail on wide screens (>1300px) — quick stats, "up next"
+  week with a jump button, job pipeline summary, and a few pinned quick
+  links, so the extra horizontal space isn't wasted
+- Resources page includes 2026 salary benchmarks (entry/mid/senior,
+  remote-from-Bangladesh context) and a Performance/Mobile/AI-LLM
+  testing tools section (JMeter, k6, Grafana, Appium, promptfoo,
+  DeepEval, Ragas)
 
 ## Editing the content
 

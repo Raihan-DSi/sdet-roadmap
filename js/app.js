@@ -586,12 +586,89 @@ function collapseAll(mi){
   document.querySelectorAll(`.week-card[data-month="${mi}"]`).forEach(c=>c.classList.remove('open'));
 }
 
+/* ---------- RIGHT RAIL (fills empty space on wide screens) ---------- */
+const RAIL_QUICK_LINKS = [
+  {cat:"DOCS", t:"Playwright — Python docs", u:"https://playwright.dev/python/docs/intro"},
+  {cat:"PRACTICE", t:"LeetCode — Easy/Array/String/Hash", u:"https://leetcode.com/problemset/"},
+  {cat:"SECURITY", t:"PortSwigger Web Security Academy", u:"https://portswigger.net/web-security"},
+  {cat:"COMMUNITY", t:"Ministry of Testing", u:"https://www.ministryoftesting.com/"}
+];
+
+function renderRightRail(){
+  const rail = document.getElementById('right-rail');
+  if(!rail) return;
+
+  const total = totalWeeks();
+  const done = doneWeeks();
+  const pct = Math.round((done/total)*100);
+  const streak = currentStreak();
+  const pace = pacingInfo();
+  let paceLine = 'Set a start date on the Start Here page to see pacing.';
+  if(pace){
+    const {diff} = pace;
+    paceLine = diff > 0 ? `${diff} wk${diff===1?'':'s'} ahead of pace` : diff < 0 ? `${Math.abs(diff)} wk${Math.abs(diff)===1?'':'s'} behind pace` : 'Right on pace';
+  }
+
+  const next = firstUnfinished();
+  let nextHtml;
+  if(next){
+    const gw = MONTHS.slice(0,next.mi).reduce((s,mo)=>s+mo.weeks.length,0) + next.wi + 1;
+    nextHtml = `
+      <div class="rail-next">
+        <span class="rail-next-month">WEEK ${String(gw).padStart(2,'0')} · MONTH ${next.mi+1}</span>
+        ${MONTHS[next.mi].weeks[next.wi].title}
+      </div>
+      <button class="rail-btn" onclick="jumpToWeek(${next.mi},${next.wi})">Jump in →</button>
+    `;
+  } else {
+    nextHtml = `<div class="rail-empty">🎉 All 48 weeks done.</div>`;
+  }
+
+  const linksHtml = RAIL_QUICK_LINKS.map(l=>`
+    <li><a href="${l.u}" target="_blank" rel="noopener"><span class="rail-link-cat">${l.cat}</span>${l.t}</a></li>
+  `).join('');
+
+  let jobsHtml = '';
+  if(jobs.length){
+    const active = jobs.filter(j=>!['Rejected','Withdrawn'].includes(j.status)).length;
+    const offers = jobs.filter(j=>j.status==='Offer').length;
+    jobsHtml = `
+      <div class="rail-card">
+        <div class="rail-label">JOB PIPELINE</div>
+        <div class="rail-stat-row"><span>Applications</span><span class="rail-stat-val">${jobs.length}</span></div>
+        <div class="rail-stat-row"><span>Active</span><span class="rail-stat-val">${active}</span></div>
+        <div class="rail-stat-row"><span>Offers</span><span class="rail-stat-val">${offers}</span></div>
+      </div>
+    `;
+  }
+
+  rail.innerHTML = `
+    <div class="rail-card">
+      <div class="rail-label">QUICK STATS</div>
+      <div class="rail-stat-row"><span>Overall</span><span class="rail-stat-val">${pct}%</span></div>
+      <div class="rail-stat-row"><span>Weeks done</span><span class="rail-stat-val">${done} / ${total}</span></div>
+      <div class="rail-stat-row"><span>Streak</span><span class="rail-stat-val">${streak > 0 ? '🔥 ' : ''}${streak}d</span></div>
+      <div class="rail-stat-row"><span>Pacing</span><span class="rail-stat-val">${paceLine}</span></div>
+    </div>
+    <div class="rail-card">
+      <div class="rail-label">UP NEXT</div>
+      ${nextHtml}
+    </div>
+    ${jobsHtml}
+    <div class="rail-card">
+      <div class="rail-label">QUICK LINKS</div>
+      <ul class="rail-link-list">${linksHtml}</ul>
+    </div>
+  `;
+}
+
 function renderAll(){
   renderTopNav();
   renderMonthNav();
   renderOverall();
   renderSidebarFooter();
   renderMain();
+  renderRightRail();
 }
 
 /* ---------- KEYBOARD SHORTCUTS ---------- */
