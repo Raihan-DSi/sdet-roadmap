@@ -60,11 +60,12 @@
   .fbtn.danger:hover{ border-color:var(--red); color:var(--red); }
   #import-file{ display:none; }
 
-  .content-wrap{ flex:1; display:flex; justify-content:center; align-items:flex-start; }
-  .main{ flex:1; padding:40px 40px 80px 56px; max-width:760px; min-width:0; }
+  .content-wrap{ flex:1; display:flex; justify-content:flex-start; align-items:flex-start; width:100%; min-width:0; }
+  .main{ flex:1 1 auto; padding:40px 40px 80px 56px; max-width:clamp(760px, 62vw, 1040px); min-width:0; }
 
-  /* Right stats rail — fills the empty space on wide screens */
-  .right-rail{ width:290px; flex-shrink:0; padding:40px 40px 80px 0; position:sticky; top:0; }
+  /* Right stats rail — pinned to the far right edge so mid-screen space
+     between it and .main reads as intentional gap, not a blank margin */
+  .right-rail{ width:290px; flex-shrink:0; padding:40px 56px 80px 0; margin-left:auto; position:sticky; top:0; }
   .rail-card{ background:var(--panel); border:1px solid var(--border); border-radius:4px; padding:16px 16px; margin-bottom:16px; }
   .rail-card .rail-label{ font-family:var(--mono); font-size:10.5px; color:var(--amber); letter-spacing:.04em; margin-bottom:12px; }
   .rail-stat-row{ display:flex; justify-content:space-between; align-items:baseline; font-family:var(--mono); font-size:12px; color:var(--text-muted); margin-bottom:8px; }
