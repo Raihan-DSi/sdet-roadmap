@@ -488,6 +488,14 @@ function setStartDate(v){
   startDate = v;
   debouncedSave();
   renderOverall();
+  renderRightRail();
+}
+function focusStartDateInput(){
+  const input = document.getElementById('start-date-input');
+  if(input){
+    input.scrollIntoView({behavior:'smooth', block:'center'});
+    input.focus();
+  }
 }
 
 function renderSidebarFooter(){
@@ -1006,11 +1014,12 @@ function renderRightRail(){
   const pct = Math.round((done/total)*100);
   const streak = currentStreak();
   const pace = pacingInfo();
-  let paceLine = 'Set a start date on the Start Here page to see pacing.';
+  let paceValue = 'Not set';
   if(pace){
     const {diff} = pace;
-    paceLine = diff > 0 ? `${diff} wk${diff===1?'':'s'} ahead of pace` : diff < 0 ? `${Math.abs(diff)} wk${Math.abs(diff)===1?'':'s'} behind pace` : 'Right on pace';
+    paceValue = diff > 0 ? `${diff} wk${diff===1?'':'s'} ahead` : diff < 0 ? `${Math.abs(diff)} wk${Math.abs(diff)===1?'':'s'} behind` : 'On pace';
   }
+  const paceCta = !pace ? `<div class="rail-cta" onclick="focusStartDateInput()">Set start date →</div>` : '';
 
   const next = firstUnfinished();
   let nextHtml;
@@ -1051,7 +1060,8 @@ function renderRightRail(){
       <div class="rail-stat-row"><span>Overall</span><span class="rail-stat-val">${pct}%</span></div>
       <div class="rail-stat-row"><span>Weeks done</span><span class="rail-stat-val">${done} / ${total}</span></div>
       <div class="rail-stat-row"><span>Streak</span><span class="rail-stat-val">${streak > 0 ? '🔥 ' : ''}${streak}d</span></div>
-      <div class="rail-stat-row"><span>Pacing</span><span class="rail-stat-val">${paceLine}</span></div>
+      <div class="rail-stat-row"><span>Pacing</span><span class="rail-stat-val">${paceValue}</span></div>
+      ${paceCta}
     </div>
     <div class="rail-card">
       <div class="rail-label">UP NEXT</div>
