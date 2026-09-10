@@ -44,8 +44,9 @@
     </div>
     <div class="save-status" id="save-status">Loading your progress…</div>
     <div class="footer-btns">
-      <button class="fbtn" onclick="exportProgress()">↓ Export backup</button>
+      <button class="fbtn" onclick="exportProgress()">↓ Backup</button>
       <button class="fbtn" onclick="document.getElementById('import-file').click()">↑ Import</button>
+      <button class="fbtn" onclick="exportCalendar()">📅 Calendar</button>
       <button class="fbtn danger" onclick="resetProgress()">Reset all</button>
     </div>
     <input type="file" id="import-file" accept="application/json" onchange="importProgress(event)">

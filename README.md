@@ -101,6 +101,31 @@ This means:
 - Glossary page — 20+ terms/acronyms used across the roadmap
   (POM, BOLA, flaky test, test pyramid, RAG, STAR method, etc.),
   with a live filter
+- **My Notes** page — every note you've written across all 48 weeks,
+  compiled into one scrollable page, click any entry to jump back to
+  that week
+- **Activity heatmap** on the Start page — a 12-week, GitHub-style
+  grid of which days you actually touched the plan
+- **"Last active" nudge** next to the streak counter — once a streak
+  breaks, it tells you plainly how many days it's been instead of
+  just resetting to a silent zero
+- **Calendar export (.ics)** — downloads all 48 weeks as calendar
+  events (starting from your set start date, or today), so you can
+  drop the whole cadence into Google/Outlook/Apple Calendar
+- **Resume bullets are linkable to their source week** — each bullet
+  can be tagged with the week it came from via a dropdown, and every
+  week card has a "+ Draft resume bullet from this week" shortcut
+  that jumps straight to a pre-linked draft
+- **Stable week IDs** — each week's storage key is now derived from
+  its title text rather than its position in the array, so future
+  content edits/reordering won't silently misalign old saved
+  progress (a one-time migration handles anyone upgrading from the
+  previous version)
+- **Import validation** — importing a backup now checks the file's
+  shape before merging it in, instead of trusting any JSON blindly
+- **Accessibility pass** — keyboard focus rings, `role`/`aria-*`
+  attributes and Enter/Space activation on checkboxes and nav items,
+  so the tool is usable without a mouse
 
 ## Editing the content
 

@@ -17,6 +17,11 @@
   a{ color:var(--blue); }
   a:hover{ color:var(--amber); }
 
+  /* Accessibility: visible focus ring for keyboard navigation across
+     custom controls (checkboxes, nav items) as well as native ones */
+  :focus-visible{ outline:2px solid var(--amber); outline-offset:2px; border-radius:2px; }
+  [role="checkbox"], [role="button"]{ outline-offset:2px; }
+
   .sidebar{ width:300px; min-width:300px; background:var(--bg-deep); border-right:1px solid var(--border);
     position:sticky; top:0; height:100vh; overflow:hidden; display:flex; flex-direction:column; }
   .sidebar-header{ padding:24px 20px 14px; flex:0 0 auto; }
