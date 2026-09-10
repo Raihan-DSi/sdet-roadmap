@@ -125,6 +125,17 @@ function daysSinceLastActive(){
   const diff = Math.round((new Date(todayStr()) - new Date(last)) / 86400000);
   return diff;
 }
+function longestStreakEver(){
+  if(activityDates.length === 0) return 0;
+  const sorted = [...new Set(activityDates)].sort();
+  let best = 1, cur = 1;
+  for(let i=1; i<sorted.length; i++){
+    const diffDays = Math.round((new Date(sorted[i]) - new Date(sorted[i-1])) / 86400000);
+    cur = diffDays === 1 ? cur+1 : 1;
+    if(cur > best) best = cur;
+  }
+  return best;
+}
 
 /* ---------- PACING ---------- */
 function pacingInfo(){
@@ -1013,13 +1024,19 @@ function renderRightRail(){
   const done = doneWeeks();
   const pct = Math.round((done/total)*100);
   const streak = currentStreak();
+  const best = longestStreakEver();
   const pace = pacingInfo();
   let paceValue = 'Not set';
+  let paceClass = 'muted';
   if(pace){
     const {diff} = pace;
-    paceValue = diff > 0 ? `${diff} wk${diff===1?'':'s'} ahead` : diff < 0 ? `${Math.abs(diff)} wk${Math.abs(diff)===1?'':'s'} behind` : 'On pace';
+    if(diff > 0){ paceValue = `${diff} wk${diff===1?'':'s'} ahead`; paceClass = 'good'; }
+    else if(diff < 0){ paceValue = `${Math.abs(diff)} wk${Math.abs(diff)===1?'':'s'} behind`; paceClass = 'warn'; }
+    else { paceValue = 'On pace'; paceClass = 'good'; }
   }
-  const paceCta = !pace ? `<div class="rail-cta" onclick="focusStartDateInput()">Set start date →</div>` : '';
+  const paceChip = pace
+    ? `<div class="qs-chip ${paceClass}"><span class="qs-chip-label">PACING</span>${paceValue}</div>`
+    : `<div class="qs-chip muted clickable" onclick="focusStartDateInput()" role="button" tabindex="0"><span class="qs-chip-label">PACING</span>Not set — tap to set →</div>`;
 
   const next = firstUnfinished();
   let nextHtml;
@@ -1057,11 +1074,19 @@ function renderRightRail(){
   rail.innerHTML = `
     <div class="rail-card">
       <div class="rail-label">QUICK STATS</div>
-      <div class="rail-stat-row"><span>Overall</span><span class="rail-stat-val">${pct}%</span></div>
-      <div class="rail-stat-row"><span>Weeks done</span><span class="rail-stat-val">${done} / ${total}</span></div>
-      <div class="rail-stat-row"><span>Streak</span><span class="rail-stat-val">${streak > 0 ? '🔥 ' : ''}${streak}d</span></div>
-      <div class="rail-stat-row"><span>Pacing</span><span class="rail-stat-val">${paceValue}</span></div>
-      ${paceCta}
+      <div class="qs-progress-row">
+        <div class="qs-ring" style="--pct:${pct}"><span>${pct}%</span></div>
+        <div class="qs-progress-text">
+          <div class="qs-big">${done}<span class="qs-of">/${total}</span></div>
+          <div class="qs-sub">weeks complete</div>
+        </div>
+      </div>
+      <div class="qs-chip-row">
+        <div class="qs-chip ${streak > 0 ? 'good' : 'muted'}" title="Best streak: ${best} day${best===1?'':'s'}">
+          <span class="qs-chip-label">STREAK</span>${streak > 0 ? '🔥 ' : ''}${streak}d
+        </div>
+        ${paceChip}
+      </div>
     </div>
     <div class="rail-card">
       <div class="rail-label">UP NEXT</div>
