@@ -24,6 +24,8 @@ let jobs = [];             // [{id, company, dateApplied, status, contact, notes
 const preflightState = {}; // {"env-python": true, ...}
 let goalText = "";          // "why I'm doing this" reminder, shown in sidebar
 let glossaryFilter = "";
+let track = "security";   // Months 7-8 specialization track id
+let lastExport = "";      // "YYYY-MM-DD" of the last JSON backup
 
 const PREFLIGHT_ITEMS = [
   {id:"python", text:"Python 3.10+ installed (python --version works in your terminal)"},
@@ -51,9 +53,11 @@ function weekKey(m,w){
   return (wk && wk.id) ? wk.id : (m+"-"+w);
 }
 function totalWeeks(){ return MONTHS.reduce((s,m)=>s+m.weeks.length,0); }
-function doneWeeks(){ return Object.values(state).filter(Boolean).length; }
+function doneWeeks(){ let n=0; MONTHS.forEach((m,mi)=>m.weeks.forEach((_,wi)=>{ if(state[weekKey(mi,wi)]) n++; })); return n; } // counts only the active track's weeks
+function setTrack(id){ if(!SPECIALIZATION_TRACKS[id]) return; track = id; applySpecializationTrack(id); markActivityToday(); debouncedSave(); renderAll(); }
 function monthDone(mIdx){ return MONTHS[mIdx].weeks.every((_,wIdx)=>state[weekKey(mIdx,wIdx)]); }
-function todayStr(){ return new Date().toISOString().slice(0,10); }
+function fmtDate(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); } // local date, not UTC
+function todayStr(){ return fmtDate(new Date()); }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
 /* ---------- STABLE WEEK IDS ----------
@@ -111,7 +115,7 @@ function currentStreak(){
   // if nothing logged today yet, streak still counts backward from yesterday
   if(!set.has(todayStr())) d.setDate(d.getDate()-1);
   while(true){
-    const key = d.toISOString().slice(0,10);
+    const key = fmtDate(d);
     if(set.has(key)){
       streak++;
       d.setDate(d.getDate()-1);
@@ -184,6 +188,9 @@ function loadProgress(){
       jobs = parsed.jobs || [];
       Object.assign(preflightState, parsed.preflight || {});
       goalText = parsed.goalText || "";
+      lastExport = parsed.lastExport || "";
+      track = (SPECIALIZATION_TRACKS[parsed.track] ? parsed.track : "security");
+      applySpecializationTrack(track);
       migrateLegacyKeys();
       statusEl.textContent = parsed.updatedAt ? `Last saved: ${new Date(parsed.updatedAt).toLocaleString()}` : 'Progress loaded.';
       statusEl.className = 'save-status ok';
@@ -201,7 +208,7 @@ function saveProgress(){
   try{
     const payload = JSON.stringify({
       weeks: state, notes: notesState, times: timeState, links: linkState,
-      activityDates, startDate, theme, bullets, jobs,
+      activityDates, startDate, theme, bullets, jobs, lastExport, track,
       preflight: preflightState, goalText,
       updatedAt: new Date().toISOString()
     });
@@ -220,9 +227,11 @@ function debouncedSave(){
 }
 
 function exportProgress(){
+  lastExport = todayStr();
+  debouncedSave();
   const payload = JSON.stringify({
     weeks: state, notes: notesState, times: timeState, links: linkState,
-    activityDates, startDate, theme, bullets, jobs,
+    activityDates, startDate, theme, bullets, jobs, lastExport, track,
     preflight: preflightState, goalText,
     updatedAt: new Date().toISOString()
   }, null, 2);
@@ -303,6 +312,7 @@ function importProgress(evt){
       if(parsed.jobs) jobs = parsed.jobs;
       if(parsed.preflight) Object.assign(preflightState, parsed.preflight);
       if(parsed.goalText) goalText = parsed.goalText;
+      if(parsed.track && SPECIALIZATION_TRACKS[parsed.track]){ track = parsed.track; applySpecializationTrack(track); }
       migrateLegacyKeys();
       saveProgress();
       applyTheme();
@@ -328,6 +338,7 @@ function resetProgress(){
   bullets = [];
   jobs = [];
   goalText = "";
+  lastExport = "";
   saveProgress();
   renderAll();
 }
@@ -374,7 +385,7 @@ function activityHeatmapHTML(){
   const cells = [];
   for(let i=days-1; i>=0; i--){
     const d = new Date(today); d.setDate(d.getDate()-i);
-    const key = d.toISOString().slice(0,10);
+    const key = fmtDate(d);
     cells.push({ date:key, active: activityDates.includes(key), isToday: i===0 });
   }
   let grid = '<div style="display:flex; gap:3px; overflow-x:auto; padding:6px 2px;">';
@@ -485,6 +496,12 @@ function renderOverall(){
     </div>`;
   }
   let lastActiveHtml = '';
+  let backupHtml = '';
+  const hasData = doneWeeks()>0 || Object.values(notesState).some(v=>v && v.trim());
+  if(hasData){
+    const age = lastExport ? Math.round((new Date(todayStr()) - new Date(lastExport))/86400000) : null;
+    if(age===null || age>=14) backupHtml = `<div class="pace-line behind">${age===null ? 'No backup yet' : 'Last backup '+age+' days ago'} — use ↓ Backup</div>`;
+  }
   if(streak === 0 && daysSince !== null && daysSince > 0){
     lastActiveHtml = `<div class="pace-line behind">Last active ${daysSince} day${daysSince===1?'':'s'} ago — jump back in</div>`;
   }
@@ -492,6 +509,7 @@ function renderOverall(){
     <div class="streak-row"><span>STREAK</span><span class="streak-flame">${streak > 0 ? '🔥 ' : ''}${streak} day${streak===1?'':'s'}</span></div>
     ${lastActiveHtml}
     ${paceHtml}
+    ${backupHtml}
   `;
 }
 
@@ -519,7 +537,8 @@ function trackComparisonHTML(){
   return `
     <div class="info-box">
       <div class="info-label">CHOOSING YOUR SPECIALIZATION TRACK</div>
-      <p>The weeks below are written for <strong>Security Testing</strong>, the default recommendation for your background. If Performance or AI/LLM Testing genuinely fits you better, swap the topics using this table as your guide — the surrounding framework (Months 7-8 structure, portfolio approach) stays the same either way. See the Resources page for a note on free AI/LLM testing tools if that's your pick.</p>
+      <p>Months 7-8 are full content for whichever track you pick — your checkboxes and notes are saved separately per track, so switching never loses progress. Security is the default recommendation for your background.</p>
+      <p style="margin:10px 0;">${Object.values(SPECIALIZATION_TRACKS).map(t=>`<span class="view-toggle" style="${t.id===track?'color:var(--amber);font-weight:600;':''}" onclick="setTrack('${t.id}')">${t.id===track?'● ':'○ '}${t.label}</span>`).join(' &nbsp; ')}</p>
       <table class="track-table">
         <tr><th></th><th>Security Testing</th><th>Performance Testing</th><th>AI / LLM Testing</th></tr>
         <tr><td class="rowlabel">Best fit if you like</td><td>Adversarial thinking, finding what breaks trust</td><td>Systems thinking, numbers, bottlenecks</td><td>Ambiguity, evaluating non-deterministic output</td></tr>
@@ -571,6 +590,7 @@ function renderWeekCard(mi, wi, w, options){
           <div class="week-section">
             <div class="week-section-label">DELIVERABLE</div>
             <p class="deliverable">${w.deliverable}</p>
+            ${w.done ? `<p class="done-means"><strong>Done means:</strong> ${w.done}</p>` : ''}
             <div style="margin-top:8px;">
               <span class="view-toggle" onclick="quickAddBulletFromWeek('${w.id}')">+ Draft resume bullet from this week</span>
             </div>
@@ -584,13 +604,13 @@ function renderWeekCard(mi, wi, w, options){
               </div>
               <div class="week-extra-field">
                 <label>Deliverable link (repo / post)</label>
-                <input type="url" placeholder="https://github.com/..." value="${link}" onchange="updateLink(${mi},${wi},this.value)">
+                <input type="url" placeholder="https://github.com/..." value="${escapeAttr(link)}" onchange="updateLink(${mi},${wi},this.value)">
               </div>
             </div>
           </div>
           <div class="week-section">
             <div class="week-section-label">YOUR NOTES</div>
-            <textarea class="week-note-area" placeholder="Anything worth remembering — a bug you hit, a question, a resume bullet draft..." oninput="updateNote(${mi},${wi},this.value)">${note}</textarea>
+            <textarea class="week-note-area" placeholder="Anything worth remembering — a bug you hit, a question, a resume bullet draft..." oninput="updateNote(${mi},${wi},this.value)">${escapeHtml(note)}</textarea>
           </div>
         </div>
       </div>
@@ -616,7 +636,7 @@ function renderMain(){
     const results = searchMatches();
     let html = `
       <div class="sheet-label">SEARCH</div>
-      <h1 class="sheet-title">Results for "${searchQuery}"</h1>
+      <h1 class="sheet-title">Results for "${escapeHtml(searchQuery)}"</h1>
       <p class="sheet-desc">${results.length} week${results.length===1?'':'s'} matched. Click any result to jump to it.</p>
     `;
     if(results.length === 0){
@@ -712,7 +732,7 @@ function goalHTML(){
     <div class="info-box goal-box" style="margin-top:20px;">
       <div class="info-label">WHY YOU'RE DOING THIS</div>
       <p style="margin-bottom:8px;">A short note to your future self for month 5-6, when motivation is hardest to keep — target role, target salary, whatever makes this concrete for you. It'll show up as a quiet reminder in the sidebar.</p>
-      <textarea id="goal-input" placeholder="e.g. Remote SDET role, $2,500+/month, offer by next September...">${goalText}</textarea>
+      <textarea id="goal-input" placeholder="e.g. Remote SDET role, $2,500+/month, offer by next September...">${escapeHtml(goalText)}</textarea>
     </div>
   `;
 }
@@ -811,7 +831,7 @@ function renderGlossaryView(){
     <div class="sheet-label">REFERENCE</div>
     <h1 class="sheet-title">Glossary</h1>
     <p class="sheet-desc">Every term and acronym used across the 48 weeks, in one place. Good for a fast refresher before Month 11's mock interviews.</p>
-    <input type="text" class="glossary-filter" placeholder="Filter terms... (e.g. security, pytest, POM)" value="${glossaryFilter}" oninput="filterGlossary(this.value)">
+    <input type="text" class="glossary-filter" placeholder="Filter terms... (e.g. security, pytest, POM)" value="${escapeAttr(glossaryFilter)}" oninput="filterGlossary(this.value)">
   `;
   if(filtered.length === 0){
     html += `<div class="info-box"><p>No terms matched that filter.</p></div>`;
@@ -859,7 +879,7 @@ function renderBulletsView(){
       const linked = b.weekId ? findWeekById(b.weekId) : null;
       html += `<div class="bullet-item" style="flex-direction:column; align-items:stretch;">
         <div style="display:flex; gap:8px; align-items:flex-start;">
-          <textarea oninput="updateBullet('${b.id}', this.value)" placeholder="Built a Playwright framework covering...">${b.text}</textarea>
+          <textarea oninput="updateBullet('${b.id}', this.value)" placeholder="Built a Playwright framework covering...">${escapeHtml(b.text)}</textarea>
           <span class="bullet-del" onclick="deleteBullet('${b.id}')">✕ remove</span>
         </div>
         <select style="margin-top:8px; background:var(--bg-deep); border:1px solid var(--border); color:var(--text-muted); font-family:var(--mono); font-size:11px; padding:5px 8px; border-radius:3px;" onchange="updateBulletWeek('${b.id}', this.value)">
@@ -937,7 +957,7 @@ function renderJobsView(){
   }
   main.innerHTML = html;
 }
-function escapeAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
+function escapeAttr(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function addJob(){
   jobs.push({id: uid(), company:"", dateApplied: todayStr(), status:"Wishlist", contact:"", notes:""});

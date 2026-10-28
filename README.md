@@ -138,3 +138,12 @@ All roadmap content lives in `js/data.js` as three plain JS constants:
 - `RESOURCES_CONTENT` — the "Resources" reference page HTML
 
 Edit that file directly — no build step, just save and refresh.
+
+
+## Week IDs
+
+Every week in `js/data.js` has an explicit `id`. Never change an existing id (saved progress is keyed to it); week titles can now be edited freely. New weeks need a new, unique id. A week may also carry an optional `done:` string, shown as "Done means" under the deliverable.
+
+## Specialization tracks
+
+`SPECIALIZATION_TRACKS` in `js/data.js` holds full Month 7-8 content for Security, Performance and AI/LLM. Pick one on the Month 7 page; the choice is saved with your progress and included in backups.
