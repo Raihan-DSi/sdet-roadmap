@@ -173,7 +173,7 @@ const MONTHS = [
       learn:["Integrating your track project (security scans, k6 suite, or LLM evals) into the same CI pipeline","Axe pass on the main UI journeys if you skipped it earlier","Final cleanup: naming, dead code, README that a stranger can run in 15 minutes"],
       resources:[{t:"Self-review pass as if you were interviewing the code", u:"#"}],
       done:"A stranger can clone, run and see green UI + API + CI in 15 minutes using only your README.",
-      deliverable:"Ship the finished capstone against Restful Booker Platform (or an equivalent non-Sauce-Demo app you can run locally) with a thorough README: architecture diagram, how to run it, what it demonstrates. If UI+API+CI are not green yet, that is this week's only job — skip new track features. Optional stretch only if everything is green: a small k6 load script or one Appium mobile test against any demo app, linked from the README." }
+      deliverable:"Ship the finished capstone against Restful Booker Platform (or an equivalent non-Sauce-Demo app you can run locally) with a thorough README: architecture diagram, how to run it, what it demonstrates. If UI+API+CI are not green yet, that is this week's only job — skip new track features." }
   ]
 },
 {

@@ -229,6 +229,7 @@ function debouncedSave(){
 function exportProgress(){
   lastExport = todayStr();
   debouncedSave();
+  renderOverall();
   const payload = JSON.stringify({
     weeks: state, notes: notesState, times: timeState, links: linkState,
     activityDates, startDate, theme, bullets, jobs, lastExport, track,
